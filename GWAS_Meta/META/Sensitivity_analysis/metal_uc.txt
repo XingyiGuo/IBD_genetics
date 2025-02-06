@@ -1,0 +1,35 @@
+# Meta-analysis weighted by standard error does not work well
+# because different studies used very different transformations
+# SCHEME   STDERR
+SCHEME   STDERR
+# Not sure if genomic control is a good idea, given the large
+# number of true associations in these three regions ...
+# GENOMICCONTROL ON
+
+# To help identify allele flips, it can be useful to track
+# allele frequencies in the meta-analysis.
+# AVERAGEFREQ ON
+# MINMAXFREQ ON
+
+# Here is a typical set of commands that would describe a table where the headers SNP, RefAllele, NonRefAllele, Pvalue and Beta correspond to the MARKER, ALLELE 1 and 2, PVALUE and EFFECT columns:
+#  MARKERLABEL   SNP
+#  ALLELELABELS  RefAllele NonRefAllele
+#  PVALUELABEL   P-value
+#  EFFECTLABEL   Effect
+ 
+ 
+MARKER MarkerName
+ALLELE Allele1 Allele2
+EFFECT Effect		
+STDERR StdErr
+PVALUE P.value
+
+
+PROCESS /nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/maf0.01_gc_EUR_UC_META1.TBL
+
+
+GENOMICCONTROL ON
+
+
+OUTFILE final_gc_EUR_UC_META .TBL
+ANALYZE HETEROGENEITY 
