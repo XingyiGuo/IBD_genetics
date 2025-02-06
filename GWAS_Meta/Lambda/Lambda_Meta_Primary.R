@@ -6,7 +6,7 @@ library(tidyr)
 
 ###### calculate lambda for gwas meta ss ########
 
-filt<- "/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/GC_Final/final_gc_"
+filt<- "/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/GC_Final/final_gc_"
 
 cal_lambda<- function(trait) {
   
@@ -47,4 +47,4 @@ colname<- c("cd", "uc", "ibd", "eascd", "easuc", "easibd")
 rb<- rbind(colname,  lambda) %>% as.data.frame()
 rb
 
-write.csv(rb, paste0("/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/select/lambda_meta_", "final_gc_0.01", ".csv"), col.names = F, row.names = F)
+write.csv(rb, paste0("/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/select/lambda_meta_", "final_gc_0.01", ".csv"), col.names = F, row.names = F)
