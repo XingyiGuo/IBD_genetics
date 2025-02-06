@@ -9,6 +9,6 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=7-0:0:0
 
-#/home/lyul1/generic-metal/metal      metal_EAS_cd.txt
+/home/lyul1/generic-metal/metal      metal_EAS_cd.txt
 /home/lyul1/generic-metal/metal      metal_EAS_uc.txt
-#/home/lyul1/generic-metal/metal      metal_EAS_ibd.txt
+/home/lyul1/generic-metal/metal      metal_EAS_ibd.txt
