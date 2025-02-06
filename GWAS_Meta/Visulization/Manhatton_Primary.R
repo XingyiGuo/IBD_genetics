@@ -59,19 +59,15 @@ if(is.na(outfilename)){
     # Add highlight and annotation information
     mutate(is_highlight = ifelse(SNP %in% snpsOfInterest, "yes", "no"))
 
-  # Prepare X axis
   axisdf <- don %>%
     group_by(CHR) %>%
     summarize(center = (max(BPcum) + min(BPcum)) / 2)
 
-  # Make the plot
   p <- ggplot(don, aes(x = BPcum, y = -log10(P))) +
     
-    # Show all points
     geom_point(aes(color = as.factor(CHR)), alpha = 0.8, size = 1.2) +
     scale_color_manual(values = col_scheme) +
     
-    # Custom X axis:
     scale_x_continuous(label = axisdf$CHR, breaks = axisdf$center) +
     scale_y_continuous(expand = c(0, 0), breaks = c(seq(0, 150, by = 10))) + 
     # Expand y-axis limit to 150
