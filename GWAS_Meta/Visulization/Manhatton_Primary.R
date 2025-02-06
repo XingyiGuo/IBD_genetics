@@ -10,11 +10,6 @@ setwd<- "/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/GC_Final/Plots/Ma
 
 # lead novel variants
 alltraits<- read.csv("/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/select/lead.var.for.plots.csv", header=T)
-alltraits <- filter(alltraits, !(alltraits$SNP == "rs11168249" & alltraits$Trait == "EUR_UC"))
-alltraits <- filter(alltraits, !(alltraits$SNP == "rs12523195" & alltraits$Trait == "EUR_UC"))
-alltraits <- filter(alltraits, !(alltraits$SNP == "rs7253302" & alltraits$Trait == "EUR_IBD"))
-alltraits <- filter(alltraits, !(alltraits$SNP == "rs11168249" & alltraits$Trait == "EUR_IBD"))
-#alltraits <- alltraits[alltraits$NCHROBS.EAS == "" | is.na(alltraits$NCHROBS.EAS), ]
 
 inputfile<- "_META1.TBL.SNP.txt"
 
