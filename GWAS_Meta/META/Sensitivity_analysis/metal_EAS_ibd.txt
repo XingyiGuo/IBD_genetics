@@ -1,0 +1,72 @@
+# Meta-analysis weighted by standard error does not work well
+# because different studies used very different transformations
+# SCHEME   STDERR
+SCHEME   STDERR
+# Not sure if genomic control is a good idea, given the large
+# number of true associations in these three regions ...
+# GENOMICCONTROL ON
+
+# To help identify allele flips, it can be useful to track
+# allele frequencies in the meta-analysis.
+# AVERAGEFREQ ON
+# MINMAXFREQ ON
+
+# Here is a typical set of commands that would describe a table where the headers SNP, RefAllele, NonRefAllele, Pvalue and Beta correspond to the MARKER, ALLELE 1 and 2, PVALUE and EFFECT columns:
+#  MARKERLABEL   SNP
+#  ALLELELABELS  RefAllele NonRefAllele
+#  PVALUELABEL   P-value
+#  EFFECTLABEL   Effect
+ 
+ 
+#### STUDY 1 NG17; Allele 2=ea Allele 1 = nea
+MARKER   markernames
+ALLELE   Allele2 Allele1
+EFFECT   Effect
+STDERR   StdErr
+PVAL     P.value
+ADDFILTER maf > 0.01
+GENOMICCONTROL ON
+
+PROCESS /nobackup/sbcs/lyul1/GWAS_SS/IBD/IBD_2017NG/processed/ibd_build38_markername_rmdup_maf_chr1.22.txt
+
+
+#### STUDY 2 MVP; ea=ea ref = nea
+MARKER   markernames
+ALLELE   ea ref
+EFFECT   beta
+STDERR   se
+PVAL     pval
+ADDFILTER maf > 0.01
+GENOMICCONTROL ON
+
+PROCESS /nobackup/sbcs/lyul1/GWAS_SS/IBD/IBD_2023MVP/processed/Phe_555.EUR.IBD_markername_rmdup.txt
+
+
+#### STUDY 3 FINNGENE; alt = ea; ref = ref
+MARKER   markernames
+ALLELE   alt ref
+EFFECT   beta
+STDERR   sebeta
+PVAL     pval
+ADDFILTER maf_alt > 0.01
+GENOMICCONTROL ON
+
+PROCESS /nobackup/sbcs/lyul1/GWAS_SS/IBD/IBD_FinnGen/R12/processed/finngen_R12_K11_IBD_STRICT_markername_rmdup_chr1.22.txt
+
+
+
+#### STUDY 4 NG23; Allele 2=ea Allele 1 = nea
+MARKER   markernames
+ALLELE   Allele2 Allele1
+EFFECT   Effect
+STDERR   StdErr
+PVAL     P.value
+ADDFILTER maf > 0.01
+GENOMICCONTROL ON
+
+PROCESS /nobackup/sbcs/lyul1/GWAS_SS/IBD/IBD_2023NG/processed/ibd_EAS_SiKJ_meta_IBD_markername_rmdup_chr1.22.txt
+
+
+OUTFILE maf0.01_gc_EASEUR_IBD_META .TBL
+
+ANALYZE HETEROGENEITY 
