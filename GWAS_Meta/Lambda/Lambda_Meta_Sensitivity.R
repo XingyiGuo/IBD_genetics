@@ -1,5 +1,4 @@
 library(data.table)
-# library(tidyverse)
 library(dplyr)
 library(tidyr)
 
@@ -12,21 +11,15 @@ cal_lambda<- function(trait) {
   
   # read in gwas ss
   data<- read.table(trait, header=T, sep="\t", stringsAsFactors = F)
+  data$Effect<- as.numeric(data$Effect)
+  data$StdErr<- as.numeric(data$StdErr)
   
   # calculate z score
-  #data$z<- data$Effect/data$StdErr
-  
-  #data$z<- data$beta/data$sebeta
+  data$z<- data$Effect/data$StdErr
   
   # (1) Convert your output to chi-squared values
   # For z-scores, just square them
-  #chisq <- data$z^2
-  
-  # For chi-squared values, keep as is
-  #chisq <- data$chisq
-  
-  # For p-values, calculate chi-squared statistic
-  chisq <- qchisq(1-data$P.value,1)
+  chisq <- data$z^2
   
   # (2) Calculate lambda gc (λgc)
   median(chisq)/qchisq(0.5,1)
