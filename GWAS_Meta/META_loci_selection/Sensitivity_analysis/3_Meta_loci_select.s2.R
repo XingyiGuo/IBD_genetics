@@ -1,5 +1,4 @@
 library(data.table)
-# library(tidyverse)
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -223,7 +222,7 @@ format_dt(sig_easibd[["sig_novel_500kb"]], "EASEUR_IBD_500k.txt")
 stop("Execution stopped")
 
 
-# performed LD clumping in shell scr # see LDclumping script
+# performed LD clumping in shell scr
 
 ####### Read processed meta results ########
 read_ex_to_list<- function(excel_file)  {
@@ -459,7 +458,35 @@ check_overlap<- function(EUR_loci, EAS_loci, trait) {
   EUR_loci$Reference<- "EUR"
   combined<- rbind(EUR_loci, add_EAS_loci)
   
-  return(list(all.EUREAS = combined, EUR.only = EUR_loci, additional = add_EAS_loci, EAS.only = EAS_loci))
+  filter_snps <- function(df, window) {
+    df <- df %>% arrange(P.value)  # sort by p-value (lowest first)
+    keep <- rep(TRUE, nrow(df))     
+    
+    for (i in seq_len(nrow(df))) {
+      if (keep[i]) {   
+        # get all snps within the window
+        within_window <- which(abs(df$BP - df$BP[i]) <= window)
+        # remove selected snps (only those with Source.loci == "EUREAS meta")
+        to_remove <- within_window[df$Source.loci[within_window] == "EUREAS meta"]
+        # remove the selected SNPs, but keep the current one
+        keep[to_remove] <- FALSE
+        keep[i] <- TRUE  # Keep the current SNP
+      }
+    }
+    
+    return(df[keep, ])
+  }
+  
+  combined.500k <- combined %>%
+    group_by(CHR) %>%
+    group_split() %>%
+    lapply(filter_snps, window = window) %>%
+    bind_rows()
+  
+  add_EAS_loci.500k <- filter(combined.500k, combined.500k$Source.loci == "EUREAS meta")
+  
+  return(list(all.EUREAS.500k = combined.500k, additional.500k = add_EAS_loci.500k, EUR.only = EUR_loci, 
+              all.EUREAS = combined, additional = add_EAS_loci, EAS.only = EAS_loci))
   
 }
 
@@ -487,9 +514,10 @@ wr_tables.lead(overlap_ibd, "./select/EASEUR_IBD")
 # Novel EUR
 combined_EUR<- rbind(overlap_cd[["EUR.only"]], overlap_uc[["EUR.only"]], overlap_ibd[["EUR.only"]])
 # Additional EAS
-add_EAS<- rbind(overlap_cd[["additional"]], overlap_uc[["additional"]], overlap_ibd[["additional"]])
-
-T12<- list(novel_EUR = combined_EUR, additional = add_EAS)
+add_EAS<- rbind(overlap_cd[["additional.500k"]], overlap_uc[["additional.500k"]], overlap_ibd[["additional.500k"]])
+# Combined the EAS EUR
+combined_EASEUR<- rbind(overlap_cd[["all.EUREAS.500k"]], overlap_uc[["all.EUREAS.500k"]], overlap_ibd[["all.EUREAS.500k"]])
+T12<- list(novel_EUR = combined_EUR, additional = add_EAS, combined_all = combined_EASEUR)
 
 wb <- createWorkbook()
 for (name in names(T12)) {
@@ -500,7 +528,7 @@ for (name in names(T12)) {
 saveWorkbook(wb, "./select/Table1_2.xlsx", overwrite = TRUE)
 
 
-##### cross check with the latest easeur gwas ######
+##### cross check with gwas loci ######
 read_ex_to_list<- function(excel_file)  {
   sheets <- excel_sheets(excel_file)
   
