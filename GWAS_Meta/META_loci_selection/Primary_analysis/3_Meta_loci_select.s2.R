@@ -1,5 +1,4 @@
 library(data.table)
-# library(tidyverse)
 library(dplyr)
 library(tidyr)
 library(stringr)
@@ -8,7 +7,7 @@ library(readxl)
 
 ##### applying additional filters (eg., distance, MAF) and selecting loci; format data for clumping; selecting lead variants from clumped results #####
 
-setwd("/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01")
+setwd("/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01")
 filt<- "./GC_Final/processed/"
 
 ####### read in previous gwas significant snps #######  ***** please note here, the reference previous snp list for EUREAS meta are based on 3EUR gwas, 1EAS only gwas, and 1EASEUR gwas meta.
@@ -50,6 +49,10 @@ eafrq_ibd<- read.csv("./select/final_gc_0.01_EASEUR_IBD_5e-08_easfrq.csv", heade
 easibd<- merge(eufrq_ibd, eafrq_ibd[, c(6,17,18)], by = "MarkerName")
 #write.csv(easibd, "./select/final_gc_0.01_EASEUR_IBD_5e-08_eureasfrq.csv", row.names = F)
 
+
+# Filter rows where MarkerName equals "5:177372991:C:T"
+# row <- kn_easibd_all_sig %>% 
+#   filter(MarkerName == "5:177372991:C:T")
 
 select_sig<- function(meta, known_snp) {
   
@@ -200,7 +203,7 @@ wr_tables(sig_easuc, "EASEUR_UC")
 wr_tables(sig_easibd, "EASEUR_IBD")
 
 #### format for clumping ####
-dir<- "/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/GC_Final/clumping/input/"
+dir<- "/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/GC_Final/clumping/input/"
 dir.create(dir, recursive = TRUE, showWarnings = FALSE)
 format_dt<- function(sig, trait) {
   col_select<- sig %>% select(, c("CHR","BP","Allele1","REF","SNP","P.value" ))
@@ -223,7 +226,7 @@ format_dt(sig_easibd[["sig_novel_500kb"]], "EASEUR_IBD_500k.txt")
 stop("Execution stopped")
 
 
-# performed LD clumping in shell scr # see LDclumping script
+# performed LD clumping in shell scr
 
 ####### Read processed meta results ########
 read_ex_to_list<- function(excel_file)  {
@@ -248,9 +251,9 @@ sig_easibd<- read_ex_to_list("./select/EASEUR_IBD_5e-08_SNP.xlsx")
 
 
 ####### Clumped results #########
-eur<- "/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/GC_Final/clumping/output_EUR.meta/"
-eas.eur<- "/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/GC_Final/clumping/output_EAS.EURmeta/EURref/"
-eas.eas<- "/nobackup/sbcs/lyul1/IBD/metal_update/withoutUKB/gc_0.01/GC_Final/clumping/output_EAS.EURmeta/EASref/"
+eur<- "/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/GC_Final/clumping/output_EUR.meta/"
+eas.eur<- "/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/GC_Final/clumping/output_EAS.EURmeta/EURref/"
+eas.eas<- "/nobackup/sbcs/lyul1/IBD/metal_update/withUKB/gc_0.01/GC_Final/clumping/output_EAS.EURmeta/EASref/"
 
 read_data<- function(dir, trait) {
   data<- fread(paste0(dir, trait),fill = T)
@@ -404,16 +407,16 @@ window<- 500000
 check_lead_var.panel <- function(panel, window) {
   
   filter_snps <- function(df, window) {
-    df <- df %>% arrange(P.value)  # Sort by p-value (lowest first)
-    keep <- rep(TRUE, nrow(df))    # Track which SNPs to keep
+    df <- df %>% arrange(P.value)  # sort by p-value (lowest first)
+    keep <- rep(TRUE, nrow(df))    
     
     for (i in seq_len(nrow(df))) {
       if (keep[i]) {  # If SNP is still marked as keep
-        # Find all SNPs within the window
+        # get all SNPs within the window
         within_window <- which(abs(df$BP - df$BP[i]) <= window)
-        # Remove SNPs in the window except the one with the lowest p-value
+        # remove SNPs in the window and keep the one with the lowest p-value
         keep[within_window] <- FALSE  
-        keep[i] <- TRUE  # Keep the current SNP
+        keep[i] <- TRUE   
       }
     }
     
@@ -459,7 +462,35 @@ check_overlap<- function(EUR_loci, EAS_loci, trait) {
   EUR_loci$Reference<- "EUR"
   combined<- rbind(EUR_loci, add_EAS_loci)
   
-  return(list(all.EUREAS = combined, EUR.only = EUR_loci, additional = add_EAS_loci, EAS.only = EAS_loci))
+  filter_snps <- function(df, window) {
+    df <- df %>% arrange(P.value)  # sort by p-value (lowest first)
+    keep <- rep(TRUE, nrow(df))     
+    
+    for (i in seq_len(nrow(df))) {
+      if (keep[i]) {   
+        # get all snps within the window
+        within_window <- which(abs(df$BP - df$BP[i]) <= window)
+        # remove selected snps (only those with Source.loci == "EUREAS meta")
+        to_remove <- within_window[df$Source.loci[within_window] == "EUREAS meta"]
+        # remove the selected SNPs, but keep the current one
+        keep[to_remove] <- FALSE
+        keep[i] <- TRUE  # Keep the current SNP
+      }
+    }
+    
+    return(df[keep, ])
+  }
+  
+  combined.500k <- combined %>%
+    group_by(CHR) %>%
+    group_split() %>%
+    lapply(filter_snps, window = window) %>%
+    bind_rows()
+  
+  add_EAS_loci.500k <- filter(combined.500k, combined.500k$Source.loci == "EUREAS meta")
+  
+  return(list(all.EUREAS.500k = combined.500k, additional.500k = add_EAS_loci.500k, EUR.only = EUR_loci, 
+              all.EUREAS = combined, additional = add_EAS_loci, EAS.only = EAS_loci))
   
 }
 
@@ -487,9 +518,10 @@ wr_tables.lead(overlap_ibd, "./select/EASEUR_IBD")
 # Novel EUR
 combined_EUR<- rbind(overlap_cd[["EUR.only"]], overlap_uc[["EUR.only"]], overlap_ibd[["EUR.only"]])
 # Additional EAS
-add_EAS<- rbind(overlap_cd[["additional"]], overlap_uc[["additional"]], overlap_ibd[["additional"]])
-
-T12<- list(novel_EUR = combined_EUR, additional = add_EAS)
+add_EAS<- rbind(overlap_cd[["additional.500k"]], overlap_uc[["additional.500k"]], overlap_ibd[["additional.500k"]])
+# Combined the EAS EUR
+combined_EASEUR<- rbind(overlap_cd[["all.EUREAS.500k"]], overlap_uc[["all.EUREAS.500k"]], overlap_ibd[["all.EUREAS.500k"]])
+T12<- list(novel_EUR = combined_EUR, additional = add_EAS, combined_all = combined_EASEUR)
 
 wb <- createWorkbook()
 for (name in names(T12)) {
@@ -499,8 +531,7 @@ for (name in names(T12)) {
 
 saveWorkbook(wb, "./select/Table1_2.xlsx", overwrite = TRUE)
 
-
-##### cross check with the latest easeur gwas ######
+##### cross check with gwas loci ######
 read_ex_to_list<- function(excel_file)  {
   sheets <- excel_sheets(excel_file)
   
@@ -535,9 +566,9 @@ colnames(easeur)[2]<- "BP"
 
 easeurcb<- rbind(easeur[, -8], easmeta)
 
-check.cd<- merge(easeur, overlap_cd[["all.EUREAS"]], by = c("CHR", "BP"))
-check.uc<- merge(easeur, overlap_uc[["all.EUREAS"]], by = c("CHR", "BP"))
-check.ibd<- merge(easeur, overlap_ibd[["all.EUREAS"]], by = c("CHR", "BP"))
+check.cd<- merge(easeur, overlap_cd[["all.EUREAS.500k"]], by = c("CHR", "BP"))
+check.uc<- merge(easeur, overlap_uc[["all.EUREAS.500k"]], by = c("CHR", "BP"))
+check.ibd<- merge(easeur, overlap_ibd[["all.EUREAS.500k"]], by = c("CHR", "BP"))
 
 combined_check<- rbind(check.cd, check.uc, check.ibd)
 write.csv(combined_check, "./select/check.with.latest.EASEURmeta.csv", row.names = F)
