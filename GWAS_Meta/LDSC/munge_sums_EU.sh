@@ -10,6 +10,10 @@
 #SBATCH --time=7-0:0:0
 
 ## source activate ldsc # before running ldsc
+## module load StdEnv/2020
+## module load python/2.7.18
+## module load bedtools
+## source /home/lyul1/ldsc_env_py27/bin/activate
 
 
 /home/lyul1/ldsc/munge_sumstats.py \
