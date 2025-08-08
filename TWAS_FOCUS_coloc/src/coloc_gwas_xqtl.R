@@ -25,7 +25,7 @@ out_root="/IBD_GWAS_TWAS/eQTLs_coloc/colocres/knowGWASLoci/"
 ################################
 ####Step 2: Load functions####
 ################################
-source("./coloc_gwas_xqtl_support.R")
+source("./coloc_gwas_xqtl_utils.R")
 
 ################################
 ####Step 3: coloc ##############
