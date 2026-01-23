@@ -1,0 +1,2 @@
+TWAS，APA-WAS，and AS-WAS models are available at: https://github.com/XingyiGuo/sTF-TWAS-CRC/models
+ABS-TWAS, GOB-TWAS, STM-TWAS models are available at: https://github.com/XingyiGuo/Decov-MeWAS/models
