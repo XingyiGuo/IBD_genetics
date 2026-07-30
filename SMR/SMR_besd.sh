@@ -1,10 +1,9 @@
 #!/bin/bash
 
-#SBATCH --mem=60G 
 #SBATCH --job-name=03_smr_besd_eur 
 #SBATCH --error=%x-%j.error
 #SBATCH --out=%x-%j.out
-#SBATCH --mem=20G
+#SBATCH --mem=60G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
