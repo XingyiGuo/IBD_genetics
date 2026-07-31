@@ -52,7 +52,9 @@ dge_analysis_plot<- function(sample) {
   #                                                                                     5, 8)), facet.highlight = TRUE, ncol = 3)
     ggsave(paste0("/data/l2_bioinfo1/lyul1/IBD/sp_transcriptomic/plots/SpatialDimPlotoverlaid_", sample, ".pdf"), plot = p3, width = 6, height = 4, dpi = 300)
 
-### annotation using "GPTCelltype"
+### annotation using "GPTCelltype"  (Hou, W., Ji, Z. Assessing GPT-4 for cell type annotation in single-cell RNA-seq analysis. Nat Methods 21, 1462–1465 (2024).)
+
+  ### GPT-based annotations may not be fully reproducible because API outputs can vary across runs and model updates, even with identical inputs.
   markers <- FindAllMarkers(spatialobj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
   res <- gptcelltype(markers, model = 'gpt-4', 
                      tissue = "colon")
