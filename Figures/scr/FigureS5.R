@@ -1,7 +1,7 @@
 library(Seurat)
 library(future)
 plan("multisession", workers = 2)
-
+library(hdf5r)
 library(ggplot2)
 library(spacexr)
 #devtools::install_github('satijalab/seurat-data')
