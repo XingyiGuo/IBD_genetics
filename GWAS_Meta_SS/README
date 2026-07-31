@@ -1,0 +1,17 @@
+Variants are identified and annotated using the GRCh38 as the reference human genome sequence
+Allele 1, Effect Allele
+Allele 2, non-effect allele
+ALT, alternative allele in 1000 Genome reference
+REF, reference allele in 1000 Genome reference
+MAF.EUR, minor allele frequency in 1000 Genome reference of European 
+
+meta-analysis of Europeans: 
+
+EUR_CD_META1.TBL.SNP.txt
+EUR_UC_META1.TBL.SNP.txt
+EUR_IBD_META1.TBL.SNP.txt
+
+meta-analysis of Europeans and East Asians: 
+EASEUR_CD_META1.TBL.SNP.txt
+EASEUR_UC_META1.TBL.SNP.txt
+EASEUR_IBD_META1.TBL.SNP.txt
