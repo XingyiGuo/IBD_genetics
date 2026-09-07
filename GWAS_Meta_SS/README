@@ -7,11 +7,11 @@ MAF.EUR, minor allele frequency in 1000 Genome reference of European
 
 GWAS meta-analysis summary statistics were seperated by chromosomes (*: 1 - 22)
 meta-analysis of Europeans: 
-EUR_CD_chr*.txt 
-EUR_UC_chr*.txt 
-EUR_IBD_chr*.txt 
+EUR_CD_chr*.txt.gz
+EUR_UC_chr*.txt.gz
+EUR_IBD_chr*.txt.gz
 
 meta-analysis of Europeans and East Asians: 
-EASEUR_CD_chr*.txt 
-EASEUR_UC_chr*.txt 
-EASEUR_IBD_chr*.txt 
+EASEUR_CD_chr*.txt.gz
+EASEUR_UC_chr*.txt.gz
+EASEUR_IBD_chr*.txt.gz
